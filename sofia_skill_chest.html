@@ -1,0 +1,700 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sofia's Skill Chest</title>
+
+<style>
+:root {
+  --bg: #111820;
+  --panel: #222d39;
+  --wood: #80502f;
+  --gold: #f2c66d;
+  --text: #f2e6c8;
+  --muted: #9aabbc;
+  --slot: #303b49;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, #18232e, #111820 65%);
+  color: var(--text);
+  font-family: "Trebuchet MS", Arial, sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .08;
+  background-image:
+    repeating-linear-gradient(
+      0deg, transparent 0 3px, #fff 3px 4px
+    );
+}
+
+header {
+  text-align: center;
+  padding: 40px 15px 25px;
+}
+
+header .small {
+  letter-spacing: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+h1 {
+  margin: 10px 0;
+  font-size: clamp(30px, 5vw, 48px);
+  color: var(--gold);
+  text-shadow: 4px 4px #49301c;
+}
+
+header p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.container {
+  max-width: 1050px;
+  margin: auto;
+  padding: 15px;
+}
+
+/* CHEST ILLUSTRATION */
+
+.chest-visual {
+  height: 155px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 10px 0 25px;
+  perspective: 500px;
+}
+
+.chest-art {
+  width: 220px;
+  height: 110px;
+  position: relative;
+  image-rendering: pixelated;
+}
+
+.chest-body {
+  position: absolute;
+  bottom: 0;
+  width: 220px;
+  height: 85px;
+  background: repeating-linear-gradient(
+    0deg,
+    #754526 0 15px,
+    #925b34 15px 29px,
+    #684020 29px 42px
+  );
+  border: 8px solid #392316;
+  box-shadow: 0 8px 0 #21140d;
+}
+
+.chest-body::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  border-left: 5px solid #b27a45;
+  border-right: 5px solid #b27a45;
+}
+
+.chest-lid {
+  position: absolute;
+  top: 5px;
+  width: 220px;
+  height: 45px;
+  background: repeating-linear-gradient(
+    0deg,
+    #a66a39 0 12px,
+    #8c552f 12px 24px
+  );
+  border: 8px solid #392316;
+  transform-origin: bottom;
+  transition: transform .8s ease;
+  box-shadow: inset 0 0 0 3px #c28a50;
+  z-index: 2;
+}
+
+.chest-lid::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  border-left: 5px solid #c18a51;
+  border-right: 5px solid #c18a51;
+}
+
+.chest-lock {
+  position: absolute;
+  left: 50%;
+  top: 43px;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 35px;
+  background: #f2c66d;
+  border: 5px solid #60411f;
+  z-index: 3;
+  transition: opacity .3s;
+}
+
+.chest-lock::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 12px;
+  background: #49301c;
+  left: 50%;
+  top: 5px;
+  transform: translateX(-50%);
+}
+
+.chest-visual.open .chest-lid {
+  transform: rotateX(115deg);
+}
+
+.chest-visual.open .chest-lock {
+  opacity: 0;
+}
+
+/* CHEST PANEL */
+
+.panel {
+  background: #25313e;
+  border: 4px solid #101720;
+  box-shadow:
+    inset 0 0 0 2px #536273,
+    0 8px 0 #0a1016;
+  padding: 15px;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #121a23;
+}
+
+.panel-heading h2 {
+  margin: 0;
+  font-size: 17px;
+  color: #f5d899;
+}
+
+.count {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* FILTERS */
+
+.toolbar {
+  margin: 15px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.search {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px;
+  background: #151e28;
+  color: white;
+  border: 2px solid #465565;
+  outline: none;
+}
+
+.search:focus {
+  border-color: var(--gold);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter {
+  padding: 8px 10px;
+  cursor: pointer;
+  background: #344252;
+  border: 2px solid #141b23;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.filter:hover,
+.filter.active {
+  background: #d1a253;
+  color: #2a1c10;
+}
+
+/* INVENTORY GRID */
+
+.inventory {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 7px;
+  padding: 12px;
+  background: #151e28;
+  border: 3px solid #101720;
+}
+
+.slot {
+  aspect-ratio: 1;
+  min-width: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: linear-gradient(145deg, #394555, #242c37);
+  border: 3px solid;
+  border-color: #687687 #111821 #111821 #687687;
+  transition: .15s;
+}
+
+.slot:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.25);
+}
+
+.slot.selected {
+  outline: 3px solid var(--gold);
+  outline-offset: -5px;
+}
+
+.slot .icon {
+  font-size: clamp(18px, 4vw, 34px);
+  filter: drop-shadow(2px 2px #111);
+}
+
+.slot .number {
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  color: #d9e0e7;
+  font-size: 9px;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0b1017;
+  border: 1px solid #d7e2ed;
+  padding: 6px 9px;
+  color: white;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10;
+}
+
+.slot:hover .tooltip {
+  opacity: 1;
+}
+
+/* RARITY */
+
+.slot.common { box-shadow: inset 0 0 0 2px #687687; }
+.slot.uncommon { box-shadow: inset 0 0 0 2px #6fae83; }
+.slot.rare { box-shadow: inset 0 0 0 2px #6c9cdb; }
+.slot.epic { box-shadow: inset 0 0 0 2px #b18bdf; }
+
+/* INSPECTOR */
+
+.inspector {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 18px;
+  padding: 18px;
+  background: #18232e;
+  border: 3px solid #101720;
+}
+
+.inspector-icon {
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  min-height: 100px;
+  background: #303b49;
+  border: 3px solid;
+  border-color: #657587 #121923 #121923 #657587;
+}
+
+.category-label {
+  text-transform: uppercase;
+  color: #8bbfe8;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+
+.inspector h3 {
+  color: var(--gold);
+  margin: 7px 0;
+  font-size: 22px;
+}
+
+.inspector p {
+  line-height: 1.6;
+  color: #d6e0e9;
+  font-size: 13px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 9px;
+  background: #344b60;
+  margin: 3px;
+  font-size: 11px;
+}
+
+.hint {
+  text-align: center;
+  color: #91a5b6;
+  font-size: 11px;
+  margin: 15px 0;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #8194a4;
+  font-size: 11px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px) {
+  .container { padding: 8px; }
+  .panel { padding: 9px; }
+  .inventory { gap: 4px; padding: 6px; }
+  .slot { border-width: 2px; }
+  .inspector { grid-template-columns: 65px 1fr; gap: 10px; padding: 10px; }
+  .inspector-icon { min-height: 65px; font-size: 35px; }
+  .inspector h3 { font-size: 17px; }
+  .inspector p { font-size: 12px; }
+  .toolbar { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="small">✦ PERSONAL INVENTORY · 2026 ✦</div>
+  <h1>SOFIA'S SKILL CHEST</h1>
+  <p>A collection of things I know, create, explore and dream of learning.</p>
+</header>
+
+<div class="container">
+
+  <div class="chest-visual" id="chestVisual">
+    <div class="chest-art">
+      <div class="chest-lid"></div>
+      <div class="chest-body"></div>
+      <div class="chest-lock"></div>
+    </div>
+  </div>
+
+  <section class="panel">
+
+    <div class="panel-heading">
+      <h2>▣ INVENTORY</h2>
+      <span class="count" id="count"></span>
+    </div>
+
+    <div class="toolbar">
+      <input
+        class="search"
+        id="search"
+        type="search"
+        placeholder="Search your inventory..."
+        aria-label="Search skills"
+      >
+    </div>
+
+    <nav class="filters" id="filters"></nav>
+
+    <div class="inventory" id="inventory"></div>
+
+    <section class="inspector">
+      <div class="inspector-icon" id="detailIcon">🔭</div>
+
+      <div>
+        <div class="category-label" id="detailCategory"></div>
+        <h3 id="detailTitle"></h3>
+        <p id="detailDescription"></p>
+        <div id="detailMeta"></div>
+      </div>
+    </section>
+
+    <p class="hint">
+      Hover to preview · Click to inspect · Search to find
+    </p>
+
+  </section>
+</div>
+
+<footer>
+  Built with curiosity, code and pixel magic. 💙
+</footer>
+
+<script>
+
+// SKILL DATABASE
+
+const skills = [
+
+{name:"Astrophysics",icon:"🔭",category:"Science",
+level:"Exploring",rarity:"epic",
+desc:"Exploring the physics of stars, galaxies, black holes and the universe."},
+
+{name:"Chemistry",icon:"⚗️",category:"Science",
+level:"Practising",rarity:"rare",
+desc:"Studying chemical principles, atomic structure, reactions and materials."},
+
+{name:"Scientific Research",icon:"🧪",category:"Science",
+level:"Developing",rarity:"rare",
+desc:"Researching questions, analysing evidence and developing scientific projects."},
+
+{name:"Mathematics",icon:"📐",category:"Academics",
+level:"Practising",rarity:"rare",
+desc:"Mathematical reasoning, geometry, calculations and problem-solving."},
+
+{name:"Historical Research",icon:"📜",category:"Humanities",
+level:"Developing",rarity:"uncommon",
+desc:"Exploring empires, events, cultures, politics and historical narratives."},
+
+{name:"Creative Writing",icon:"✒️",category:"Creative",
+level:"Practising",rarity:"rare",
+desc:"Creating original stories, characters, plots and fictional worlds."},
+
+{name:"Scriptwriting",icon:"🎬",category:"Creative",
+level:"Developing",rarity:"uncommon",
+desc:"Writing documentary scripts, video narratives and engaging introductions."},
+
+{name:"Book Reviewing",icon:"📚",category:"Creative",
+level:"Practising",rarity:"uncommon",
+desc:"Reading, analysing and communicating ideas about books and literature."},
+
+{name:"Visual Design",icon:"🎨",category:"Digital",
+level:"Learning",rarity:"uncommon",
+desc:"Creating presentations, posters and visual designs using digital tools."},
+
+{name:"Video Editing",icon:"🎞️",category:"Digital",
+level:"Learning",rarity:"uncommon",
+desc:"Learning editing, storytelling, pacing and video production."},
+
+{name:"Public Speaking",icon:"🎤",category:"Leadership",
+level:"Practising",rarity:"rare",
+desc:"Presenting ideas, hosting activities and communicating before audiences."},
+
+{name:"Project Leadership",icon:"🏅",category:"Leadership",
+level:"Developing",rarity:"rare",
+desc:"Coordinating ideas and contributions for collaborative school projects."},
+
+{name:"Turkish",icon:"🇹🇷",category:"Languages",
+level:"Beginner",rarity:"common",
+desc:"Learning Turkish vocabulary, grammar, pronunciation and conversation."},
+
+{name:"Arabic Reading",icon:"أ",category:"Languages",
+level:"Practising",rarity:"common",
+desc:"Recognising Arabic script and developing reading skills."},
+
+{name:"Bansuri",icon:"🪈",category:"Music",
+level:"Beginner",rarity:"common",
+desc:"Learning flute finger placement, breath control and simple melodies."},
+
+{name:"Piano Keyboard",icon:"🎹",category:"Music",
+level:"Beginner",rarity:"common",
+desc:"Learning keyboard basics, note names and simple melodies."},
+
+{name:"Psychology",icon:"🧠",category:"Learning",
+level:"Exploring",rarity:"uncommon",
+desc:"Exploring cognitive and social psychology and how people think and interact."},
+
+{name:"Python Programming",icon:"🐍",category:"Technology",
+level:"Not started",rarity:"common",
+desc:"A future goal: learning programming for science, data and creative projects."}
+
+];
+
+// APPLICATION STATE
+
+let activeCategory = "All";
+let selected = 0;
+let searchText = "";
+
+const inventory = document.getElementById("inventory");
+const filters = document.getElementById("filters");
+const search = document.getElementById("search");
+
+// FILTER BUTTONS
+
+const categories = [
+  "All", ...new Set(skills.map(s => s.category))
+];
+
+categories.forEach(category => {
+
+  const button = document.createElement("button");
+
+  button.className = "filter" +
+    (category === "All" ? " active" : "");
+
+  button.textContent = category;
+
+  button.onclick = () => {
+
+    activeCategory = category;
+
+    document.querySelectorAll(".filter").forEach(b =>
+      b.classList.toggle("active", b === button)
+    );
+
+    render();
+
+  };
+
+  filters.appendChild(button);
+
+});
+
+// SEARCH
+
+search.addEventListener("input", () => {
+  searchText = search.value.toLowerCase();
+  render();
+});
+
+// RENDER INVENTORY
+
+function render() {
+
+  inventory.innerHTML = "";
+
+  const visible = skills
+    .map((skill,index) => ({...skill,index}))
+    .filter(skill => {
+
+      const matchesCategory =
+        activeCategory === "All" ||
+        skill.category === activeCategory;
+
+      const matchesSearch =
+        skill.name.toLowerCase().includes(searchText) ||
+        skill.category.toLowerCase().includes(searchText) ||
+        skill.desc.toLowerCase().includes(searchText);
+
+      return matchesCategory && matchesSearch;
+
+    });
+
+  document.getElementById("count").textContent =
+    visible.length + " items";
+
+  visible.forEach(skill => {
+
+    const slot = document.createElement("button");
+
+    slot.className = `slot ${skill.rarity}` +
+      (skill.index === selected ? " selected" : "");
+
+    slot.innerHTML = `
+      <span class="icon">${skill.icon}</span>
+      <span class="number">${skill.index + 1}</span>
+      <span class="tooltip">${skill.name}</span>
+    `;
+
+    slot.onclick = () => {
+
+      selected = skill.index;
+      showDetails(skill.index);
+      render();
+
+    };
+
+    inventory.appendChild(slot);
+
+  });
+
+  // Empty slots
+
+  for(let i = visible.length; i < 27; i++) {
+
+    const empty = document.createElement("div");
+
+    empty.className = "slot";
+    empty.style.opacity = ".25";
+    empty.style.cursor = "default";
+
+    inventory.appendChild(empty);
+
+  }
+
+}
+
+// INSPECTOR
+
+function showDetails(index) {
+
+  const skill = skills[index];
+
+  document.getElementById("detailIcon").textContent =
+    skill.icon;
+
+  document.getElementById("detailCategory").textContent =
+    skill.category;
+
+  document.getElementById("detailTitle").textContent =
+    skill.name;
+
+  document.getElementById("detailDescription").textContent =
+    skill.desc;
+
+  document.getElementById("detailMeta").innerHTML = `
+    <span class="tag">${skill.level}</span>
+    <span class="tag">${skill.rarity.toUpperCase()}</span>
+    <span class="tag">Slot ${index + 1}</span>
+  `;
+
+}
+
+// CHEST ANIMATION
+
+const chestVisual = document.getElementById("chestVisual");
+
+chestVisual.addEventListener("click", () => {
+  chestVisual.classList.toggle("open");
+});
+
+// INITIALISE
+
+render();
+showDetails(0);
+
+</script>
+</body>
+</html>
